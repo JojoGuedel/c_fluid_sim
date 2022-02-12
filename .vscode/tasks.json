@@ -37,8 +37,6 @@
             "type": "shell",
             "command": "clang",
             "args": [
-                "${workspaceFolder}/examples/rainbow/main.c",
-
                 "${workspaceFolder}/src/*.c",
                 
                 "-L${workspaceFolder}/lib",
@@ -51,7 +49,6 @@
                 "-lglew32s",
                 "-lpixa32s",
                 
-
                 "-Wall",
                 "-Wno-deprecated-declarations",
 
