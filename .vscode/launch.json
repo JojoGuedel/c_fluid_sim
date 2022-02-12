@@ -1,0 +1,29 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "run c (debug)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "preLaunchTask": "c_clang_debug",
+            "program": "${workspaceFolder}/out/${workspaceFolderBasename}.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "externalTerminal"
+        },
+        {
+            "name": "run c (release)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "preLaunchTask": "c_clang_release",
+            "program": "${workspaceFolder}/out/${workspaceFolderBasename}.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "console": "externalTerminal"
+        }
+    ]
+}

@@ -1,0 +1,66 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "c_clang_debug",
+            "group": "build",
+            "type": "shell",
+            "command": "clang",
+            "args": [
+                "${workspaceFolder}/src/*.c",
+                
+                "-L${workspaceFolder}/lib",
+                "-lUser32",
+                "-lGdi32",
+                "-lShell32",
+                "-lopengl32",
+                
+                "-lglfw3_mt",
+                "-lglew32s",
+                "-lpixa32s",
+
+                "-Wall",
+                "-Wno-deprecated-declarations",
+                
+                "-g",
+                "-O2",
+                "-DDEBUG",
+                "-I${workspaceFolder}/inc",
+                "-o${workspaceFolder}/out/${workspaceFolderBasename}.exe"
+            ],
+            "dependsOn": [],
+            "problemMatcher": [],
+        },
+        {
+            "label": "c_clang_release",
+            "group": "build",
+            "type": "shell",
+            "command": "clang",
+            "args": [
+                "${workspaceFolder}/examples/rainbow/main.c",
+
+                "${workspaceFolder}/src/*.c",
+                
+                "-L${workspaceFolder}/lib",
+                "-lUser32",
+                "-lGdi32",
+                "-lShell32",
+                "-lopengl32",
+                
+                "-lglfw3_mt",
+                "-lglew32s",
+                "-lpixa32s",
+                
+
+                "-Wall",
+                "-Wno-deprecated-declarations",
+
+                "-O2",
+                "-I${workspaceFolder}/inc",
+                "-o${workspaceFolder}/out/${workspaceFolderBasename}.exe"
+            ],
+            "dependsOn": [],
+            "problemMatcher": [],
+        }
+    ]
+}

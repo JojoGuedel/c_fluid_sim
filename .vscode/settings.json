@@ -1,0 +1,29 @@
+{
+    "files.associations": {
+        "*.h": "c",
+        "atomic": "c",
+        "filesystem": "c",
+        "ios": "c",
+        "list": "c",
+        "system_error": "c",
+        "vector": "c",
+        "xhash": "c",
+        "xiosbase": "c",
+        "xstring": "c",
+        "xtree": "c",
+        "array": "c",
+        "xutility": "c",
+        "iomanip": "c",
+        "istream": "c",
+        "ostream": "c",
+        "xlocmon": "c",
+        "xlocnum": "c",
+        "fstream": "c",
+        "map": "c",
+        "sstream": "c",
+        "streambuf": "c",
+        "unordered_map": "c",
+        "cstdlib": "c",
+        "xlocale": "c"
+    }
+}
