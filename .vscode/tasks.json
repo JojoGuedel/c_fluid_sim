@@ -23,7 +23,7 @@
                 "-Wno-deprecated-declarations",
                 
                 "-g",
-                "-O2",
+                "-O0",
                 "-DDEBUG",
                 "-I${workspaceFolder}/inc",
                 "-o${workspaceFolder}/out/${workspaceFolderBasename}.exe"

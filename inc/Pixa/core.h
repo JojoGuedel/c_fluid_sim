@@ -8,6 +8,9 @@ extern bool active;
 extern int width;
 extern int height;
 
+extern double mouse_x;
+extern double mouse_y;
+
 extern double elapsed_time;
 extern double delta_time;
 
@@ -27,13 +30,14 @@ void engine_start();
 /*! @brief Stop the engine. */
 void engine_stop();
 
+void engine_set_user_input(void (*on_key_pressed)(int key, int action, int flags), void (*on_mouse_pressed)(int button, int action, int flags));
+
 /*! @brief Get the width of the currently bound layer.
  *  @return The width of currently bound layer.
  */
 int get_width();
 /*! @brief Get the height of the currently bound layer.
  *  @return The height of the currently bound layer.
- */
-int get_height();
+*/
 
 #endif
