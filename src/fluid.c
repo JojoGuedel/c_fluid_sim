@@ -11,7 +11,8 @@ void fluid_set_boundaries(FluidCell *fluid_target, int width, int height)
 {
     for (int x = 0; x < width; x++)
     {
-        fluid_target[x + 0] = fluid_target[x + width];
+        fluid_target[x +                    0] = fluid_target[x +                width];
+        fluid_target[x + (height - 1) * width] = fluid_target[x + (height - 2) * width];
         // TODO: isn't there a boundary missing?
     }
 

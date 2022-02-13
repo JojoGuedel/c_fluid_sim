@@ -1,6 +1,5 @@
 This file is just for me, to remember what happened because because I'm writing a thesis about it.
 
-
 #+-------------------------------------------- 12.02.2022 --------------------------------------------+
 
 Heute habe ich mit der Simulation angefangen.
@@ -17,5 +16,15 @@ Je blauer ein Pixel, desto dichter ist es.
 Auf dem Bild diffusion2_12.02.2022 sieht man, wie die Pixel am rand weniger Blau geworden sind.
 Das liegt daran, dass ich momentan den Rand noch nicht setze.
 Das wird aber später nicht mehr so sein. 
+
+Programmier Zeit: 2h
+
+#+-------------------------------------------- 12.02.2022 --------------------------------------------+
+
+Ich habe jetzt die Simulation versucht mit Userinput etwas mehr interaktiv zu machen.
+Das war ein grosser Fehler... ich habe bestimmt 1h oder mehr nur mit der Simulation herumgespielt.
+Zudem ist jetzt der stabile Diffusions-Altorithmus implementiert.
+Jetzt kann die Simulation nicht mehr eskallieren.
+Ich habe die Algebra auf Papier gemacht und war ertaunt, dass es wirklich funktioniert hatte.
 
 Programmier Zeit: 2h

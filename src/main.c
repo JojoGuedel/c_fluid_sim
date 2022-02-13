@@ -47,8 +47,8 @@ void on_update()
     for (int y = 0; y < HEIGHT + 1; y++)
         for (int x = 0; x < WIDTH + 1; x++)
         {
-            float d = min(current[(x + 1) + (y + 1) * (WIDTH + 2)].density, 255);
-            color((Color){d, d, d, 255});
+            float d = min(current[(x + 1) + (y + 1) * (WIDTH + 2)].density, 300);
+            color(color_hsv(d, 100, 100));
             draw_pixel(x, y);
         }
     
