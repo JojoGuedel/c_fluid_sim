@@ -2,3 +2,20 @@ This file is just for me, to remember what happened because because I'm writing 
 
 
 #+-------------------------------------------- 12.02.2022 --------------------------------------------+
+
+Heute habe ich mit der Simulation angefangen.
+Es fehlen jedoch noch wichtige Funktionen in der Engine wie z.B. Tasten- oder Mausinputs in der Engine.
+Desshalb kann ich noch nicht so einfach Testen.
+
+Die Simulation simuliert jetzt erst die Diffusion der Flüssigkeit.
+Jedoch muss ich noch mit den Inputwerten herumtesten, bis etwas brauchbares herauskommt.
+Zudem kann es vorkommen, dass die Werte eskalieren.
+Wenn es jedoch nicht eskaliert, sieht es schon ganz toll aus.
+
+Das Bild diffusion1_12.02.2022 zeigt die Simulation am anfang. 
+Je blauer ein Pixel, desto dichter ist es.
+Auf dem Bild diffusion2_12.02.2022 sieht man, wie die Pixel am rand weniger Blau geworden sind.
+Das liegt daran, dass ich momentan den Rand noch nicht setze.
+Das wird aber später nicht mehr so sein. 
+
+Programmier Zeit: 2h
