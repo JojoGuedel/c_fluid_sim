@@ -1,3 +1,5 @@
+#include <stddef.h>
+
 #include "Pixa/core.h"
 #include "Pixa/graphics.h"
 #include "Pixa/input.h"
@@ -5,6 +7,7 @@
 #include "Pixa/log.h"
 
 #include "fluid.h"
+
 
 #define min(a, b) a < b? a : b;
 

@@ -39,5 +39,6 @@ int get_width();
 /*! @brief Get the height of the currently bound layer.
  *  @return The height of the currently bound layer.
 */
+int get_height();
 
 #endif

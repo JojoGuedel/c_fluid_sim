@@ -5,29 +5,53 @@
             "label": "c_clang_debug",
             "group": "build",
             "type": "shell",
-            "command": "clang",
-            "args": [
-                "${workspaceFolder}/src/*.c",
-                
-                "-L${workspaceFolder}/lib",
-                "-lUser32",
-                "-lGdi32",
-                "-lShell32",
-                "-lopengl32",
-                
-                "-lglfw3_mt",
-                "-lglew32s",
-                "-lpixa32s",
+            "windows": {
+                "command": "clang",
+                "args": [
+                    "${workspaceFolder}/src/*.c",
 
-                "-Wall",
-                "-Wno-deprecated-declarations",
-                
-                "-g",
-                "-O0",
-                "-DDEBUG",
-                "-I${workspaceFolder}/inc",
-                "-o${workspaceFolder}/out/${workspaceFolderBasename}.exe"
-            ],
+                    "-L${workspaceFolder}/lib/windows",
+                    "-lUser32",
+                    "-lGdi32",
+                    "-lShell32",
+                    "-lopengl32",
+
+                    "-lglfw3_mt",
+                    "-lglew32s",
+                    "-lpixa32s",
+
+                    "-Wall",
+                    "-Wno-deprecated-declarations",
+
+                    "-g",
+                    "-O0",
+                    "-DDEBUG",
+                    "-I${workspaceFolder}/inc",
+                    "-o${workspaceFolder}/out/windows/${workspaceFolderBasename}.exe"
+                ],
+            },
+            "linux": {
+                "command": "clang",
+                "args": [
+                    "${workspaceFolder}/src/*.c",
+                    
+                    "-L${workspaceFolder}/lib/linux",
+                    "-lm",
+                    "-lGL",
+                    "-lpixa",
+                    "-lglfw3",
+                    "-lGLEW",
+
+                    "-Wall",
+                    "-Wno-deprecated-declarations",
+                    
+                    "-g",
+                    "-O0",
+                    "-DDEBUG",
+                    "-I${workspaceFolder}/inc",
+                    "-o${workspaceFolder}/out/linux/${workspaceFolderBasename}"
+                ],
+            },
             "dependsOn": [],
             "problemMatcher": [],
         },
@@ -35,27 +59,48 @@
             "label": "c_clang_release",
             "group": "build",
             "type": "shell",
-            "command": "clang",
-            "args": [
-                "${workspaceFolder}/src/*.c",
-                
-                "-L${workspaceFolder}/lib",
-                "-lUser32",
-                "-lGdi32",
-                "-lShell32",
-                "-lopengl32",
-                
-                "-lglfw3_mt",
-                "-lglew32s",
-                "-lpixa32s",
-                
-                "-Wall",
-                "-Wno-deprecated-declarations",
+            "windows":{
+                "command": "clang",
+                "args": [
+                    "${workspaceFolder}/src/*.c",
 
-                "-O2",
-                "-I${workspaceFolder}/inc",
-                "-o${workspaceFolder}/out/${workspaceFolderBasename}.exe"
-            ],
+                    "-L${workspaceFolder}/lib/windows",
+                    "-lUser32",
+                    "-lGdi32",
+                    "-lShell32",
+                    "-lopengl32",
+                    "-lglfw3_mt",
+                    "-lglew32s",
+                    "-lpixa32s",
+
+                    "-Wall",
+                    "-Wno-deprecated-declarations",
+
+                    "-O2",
+                    "-I${workspaceFolder}/inc",
+                    "-o${workspaceFolder}/out/windows/${workspaceFolderBasename}.exe"
+                ],
+            },
+            "linux":{
+                "command": "clang",
+                "args": [
+                    "${workspaceFolder}/src/*.c",
+                    
+                    "-L${workspaceFolder}/lib/linux",
+                    "-lm",
+                    "-lGL",
+                    "-lglfw3",
+                    "-lGLEW",
+                    "-lpixa",
+
+                    "-Wall",
+                    "-Wno-deprecated-declarations",
+                    
+                    "-O2",
+                    "-I${workspaceFolder}/inc",
+                    "-o${workspaceFolder}/out/linux/${workspaceFolderBasename}"
+                ],
+            },
             "dependsOn": [],
             "problemMatcher": [],
         }
