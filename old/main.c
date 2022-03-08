@@ -11,21 +11,21 @@
 
 #define min(a, b) a < b? a : b;
 
-#define WIDTH 125
-#define HEIGHT 125
+#define WIDTH 250
+#define HEIGHT 250
 
 bool m1_p = false;
 
 FluidCell fluid_field_b1[(WIDTH + 2) * (HEIGHT + 2)];
 FluidCell fluid_field_b2[(WIDTH + 2) * (HEIGHT + 2)];
 
-FluidCell *current = fluid_field_b1;
+FluidCell *front = fluid_field_b1;
 FluidCell *back    = fluid_field_b2;
 
 void on_create()
 {
     for (int i = 0; i < (WIDTH + 2) * (HEIGHT + 2); i++)
-        current[i] = (FluidCell) {0, 0, 0};
+        front[i] = (FluidCell) {0, 0, 0};
 }
 
 void on_update()
@@ -36,21 +36,21 @@ void on_update()
         int y = ((int) mouse_y / (500 / HEIGHT) + 1);
 
         if (x > 0 && x < WIDTH && y > 0 && y < WIDTH)
-            current[x + y * (WIDTH + 2)].density += 100000 * delta_time;
+            front[x + y * (WIDTH + 2)].density += 50 * delta_time * WIDTH * HEIGHT;
     }
 
     // fluid_diffuse_bad(back, current, (WIDTH + 2), (HEIGHT + 2), 10.0f);
-    fluid_diffuse(back, current, (WIDTH + 2), (HEIGHT + 2), 40.0f, 20);
+    fluid_diffuse(back, front, (WIDTH + 2), (HEIGHT + 2), 0.01f, 10);
 
     // "swap the buffers"
-    FluidCell *temp = current;
-    current = back;
+    FluidCell *temp = front;
+    front = back;
     back = temp;
 
     for (int y = 0; y < HEIGHT + 1; y++)
         for (int x = 0; x < WIDTH + 1; x++)
         {
-            float d = min(current[(x + 1) + (y + 1) * (WIDTH + 2)].density, 300);
+            float d = min(front[(x + 1) + (y + 1) * (WIDTH + 2)].density, 300);
             color(color_hsv(d, 100, 100));
             draw_pixel(x, y);
         }

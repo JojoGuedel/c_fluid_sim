@@ -1,6 +1,6 @@
 This file is just for me, to remember what happened because because I'm writing a thesis about it.
 
-#+-------------------------------------------- 12.02.2022 --------------------------------------------+
++-------------------------------------------- 12.02.2022 --------------------------------------------+
 
 Heute habe ich mit der Simulation angefangen.
 Es fehlen jedoch noch wichtige Funktionen in der Engine wie z.B. Tasten- oder Mausinputs in der Engine.
@@ -19,7 +19,7 @@ Das wird aber später nicht mehr so sein.
 
 Programmier Zeit: 2h
 
-#+-------------------------------------------- 12.02.2022 --------------------------------------------+
++-------------------------------------------- 12.02.2022 --------------------------------------------+
 
 Ich habe jetzt die Simulation versucht mit Userinput etwas mehr interaktiv zu machen.
 Das war ein grosser Fehler... ich habe bestimmt 1h oder mehr nur mit der Simulation herumgespielt.
@@ -28,3 +28,5 @@ Jetzt kann die Simulation nicht mehr eskallieren.
 Ich habe die Algebra auf Papier gemacht und war ertaunt, dass es wirklich funktioniert hatte.
 
 Programmier Zeit: 2h
+
++-------------------------------------------- 07.03.2022 --------------------------------------------+

@@ -1,0 +1,16 @@
+#============================================#
+#             reached milestones             #
+#============================================#
+- implement density
+- implement basic diffusion
+- implement advanced diffusion
+#============================================#
+#                 working on                 #
+#============================================#
+- implement velocity
+#============================================#
+#                 milestones                 #
+#============================================#
+- create basic user gui
+- create advanced user gui
+- implement compute shaders for better performance

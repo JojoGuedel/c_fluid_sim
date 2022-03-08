@@ -25,7 +25,7 @@ void fluid_set_boundaries(FluidCell *fluid_target, int width, int height)
 
 void fluid_diffuse_bad(FluidCell *fluid_target, FluidCell *fluid_src, int width, int height, float diff_rate)
 {
-    float diff_rate_dt = diff_rate * delta_time /** width * height*/;
+    float diff_rate_dt = diff_rate * delta_time * width * height;
 
     for (int y = 1; y < height - 1; y++)
         for (int x = 1; x < width - 1; x++)
@@ -43,7 +43,7 @@ void fluid_diffuse_bad(FluidCell *fluid_target, FluidCell *fluid_src, int width,
 
 void fluid_diffuse(FluidCell *fluid_target, FluidCell *fluid_src, int width, int height, float diff_rate, int percision)
 {
-    float diff_rate_dt = diff_rate * delta_time /** width * height*/;
+    float diff_rate_dt = diff_rate * delta_time * width * height;
 
     for (int p = 0; p < percision; p++)
         for (int y = 1; y < height - 1; y++)
