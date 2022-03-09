@@ -1,16 +1,19 @@
 #============================================#
 #             reached milestones             #
 #============================================#
-- implement density
-- implement basic diffusion
-- implement advanced diffusion
+
 #============================================#
 #                 working on                 #
 #============================================#
-- implement velocity
+
+o- implement basic particles
+|- solve particle collision with impulse
+
 #============================================#
 #                 milestones                 #
 #============================================#
-- create basic user gui
-- create advanced user gui
-- implement compute shaders for better performance
+
+
+o- create basic user gui
+o- create advanced user gui
+o- implement compute shaders for better performance
