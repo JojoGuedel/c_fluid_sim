@@ -1,9 +1,6 @@
 #include "utils.h"
 #include <stdbool.h>
 
-#define VECTOR_EQUALS(vec1, vec2) ((vec1).x == (vec2).x && (vec1).y == (vec2).y)
-#define VECTOR_IEQUALS(vec1, vec2) ((int)(vec1).x == (int)(vec2).x && (int)(vec1).y == (int)(vec2).y)
-
 Vector vector_add(Vector vec1, Vector vec2) {
     vec1.x += vec2.x;
     vec1.y += vec2.y;

@@ -2,6 +2,7 @@
 #define H_UTILS
 
 #include <stdbool.h>
+
 typedef struct {
     float x;
     float y;

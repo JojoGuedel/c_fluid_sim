@@ -4,7 +4,7 @@
 #include "utils.h"
 
 #ifndef QUAD_TREE_MAX_DEPTH
-#define QUAD_TREE_MAX_DEPTH 6
+#define QUAD_TREE_MAX_DEPTH 5
 #endif
 
 typedef struct QuadTree {
@@ -23,5 +23,6 @@ bool quad_tree_add_element(QuadTree *tree, void *element, Area area);
 void quad_tree_get_elements(QuadTree *tree, Area area, void **elements, int *element_count);
 
 int quad_tree_get_size_in_area(QuadTree *tree, Area area);
+int quad_tree_get_size(QuadTree *tree);
 
 #endif

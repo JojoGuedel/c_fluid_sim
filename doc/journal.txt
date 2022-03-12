@@ -29,4 +29,27 @@ Ich habe die Algebra auf Papier gemacht und war ertaunt, dass es wirklich funkti
 
 Programmier Zeit: 2h
 
-+-------------------------------------------- 07.03.2022 --------------------------------------------+
++-------------------------------------------- 12.03.2022 --------------------------------------------+
+
+Letzte Woche habe ich mich dazu entschieden, nochmals neu mit der Simulation anzufangen.
+Ich möchte jetzt die Simulation basierend auf der kinetischen Gastheorie.
+Die Simulation basieret jetzt auf dem Schulstoff, den wir im Physik und in der Chemie angeschaut haben.
+Jetzt werden nur noch Partikel simuliert.
+Partikel sind bei mir momentan kleine Kreise mit dem Radius 1.
+Das wird sich vermutlich noch ändern.
+
+Die Kollisionen zwischen den Partikel werden mit Hilfe des Impulses und
+der Erhaltung der kinetischen Energie berechnet.
+Ich habe die Formeln selber hergeleitet.
+Jedoch war es sehr aufwendig, da es nur sehr viele Variabeln und keine Konstanten gab.
+Die Kollisionen scheinen zu funktionieren.
+Wenn man aber eine grössere Anzahl an Teilchen simuliert, bilden sich kleine Haufen.
+Ich möchte versuchen, eine Art, kontinuirliche Kollisionserkennung einzubauen, das wird aber vermutlich noch kompliziert.
+
+Ich habe heute den Quad-Tree implementiert.
+Das ist eine Art, ganz schnell, eine Liste zu durchsuchen.
+Die Idee dahinter ist, dass ich nicht mehr alle Teilchen miteinander testen muss, beid er Kollision,
+sondern dass nur noch 10 bis 20 Teilchen überprüffen muss.
+So reduziert sich die Zeit zum Berechnen auf einen Bruchteil von vorhin.
+
+Programmier Zeit: 10h
