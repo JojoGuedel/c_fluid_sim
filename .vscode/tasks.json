@@ -45,6 +45,8 @@
                     "-Wall",
                     "-Wno-deprecated-declarations",
                     
+                    // "-fsanitize=address",
+
                     "-g",
                     "-O0",
                     "-DDEBUG",
@@ -89,9 +91,9 @@
                     "-L${workspaceFolder}/lib/linux",
                     "-lm",
                     "-lGL",
+                    "-lpixa",
                     "-lglfw3",
                     "-lGLEW",
-                    "-lpixa",
 
                     "-Wall",
                     "-Wno-deprecated-declarations",
