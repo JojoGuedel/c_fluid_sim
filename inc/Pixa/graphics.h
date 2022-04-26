@@ -14,11 +14,6 @@ void draw_line(int x1, int y1, int x2, int y2);
 void draw_rect(int x, int y, int width, int height);
 void fill_rect(int x, int y, int width, int height);
 
-// void draw_ellipse(int x, int y, int width, int height);
-// void draw_filled_ellipse(int x, int y, int width, int height);
-
-// void draw_triangle(int x, int y, int width, int height);
-// void draw_filled_triangle(int x, int y, int width, int height);
-
+void draw_circle(int x, int y, int r);
 
 #endif

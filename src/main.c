@@ -1,8 +1,12 @@
+#include <corecrt_math.h>
+#include <corecrt_memory.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 
 #include "Pixa/color.h"
 #include "Pixa/core.h"
@@ -15,161 +19,136 @@
 #include "quad_tree.h"
 #include "utils.h"
 
-#define min(a, b) a < b ? a : b;
-#define PARTICLE_COUNT 10000
+#define PARTICLE_COUNT 2
 
-Particle *p_front;
-Particle *p_back;
+Particle *p_front_b;
+Particle *p_back_b;
 
-Particle **p_collision;
+QuadTree *p_tree;
+Particle **p_collision_b;
 
-QuadTree *tree;
+void update_pos(int delta_t) {
+    for (int i = 0; i < PARTICLE_COUNT; i++) {
+        p_back_b[i].pos.x += p_back_b[i].vel.x * delta_t;
+        p_back_b[i].pos.y += p_back_b[i].vel.y * delta_t;
+    }
+}
 
-// Particle particles[PARTICLE_COUNT];
+void evaluate(float delta_t) {
+    // TODO: cache dt for every particle
+    float sim_t = 0;
+    float min_dt = delta_t;
+
+    int p1 = -1;
+    Particle *p2 = NULL;
+
+    // simulate for the durration of delta_t  
+    while (sim_t < delta_t) {
+        // TODO: just modify tree instead of rebuilding it every time
+        quad_tree_clear(p_tree);
+        for (int i = 0; i < PARTICLE_COUNT; i++)
+            quad_tree_add_element(p_tree, &p_front_b[i], (Area){p_front_b[i].pos, (Vector){p_front_b[i].vel.x * sim_t, p_front_b[i].vel.y * sim_t}});
+
+        for (int i = 0; i < PARTICLE_COUNT; i++) {
+            int p_collision_count = 0; 
+            quad_tree_get_elements(p_tree, (Area){p_front_b[i].pos, (Vector){p_front_b[i].vel.x * sim_t, p_front_b[i].vel.y * sim_t}}, (void **)p_collision_b, &p_collision_count);
+
+            // skip if no other particles is in the same quadrant
+            if (p_collision_count <= 1)
+                continue;
+
+            // find particles that collide before the next time step
+            for (int j = 0; j < p_collision_count; j++) {
+                if (&p_front_b[i] == p_collision_b[j])
+                    continue;
+
+                // (x(vb) - x(va))² + (y(vb) - y(va))²
+                float a = (p_collision_b[i]->vel.x - p_front_b[i].vel.x) * (p_collision_b[i]->vel.x - p_front_b[i].vel.x)
+                    + (p_collision_b[i]->vel.y - p_front_b[i].vel.y) * (p_collision_b[i]->vel.y - p_front_b[i].vel.y);
+                // ((x(B) - x(A)) (x(vb) - x(va)) + (y(B) - y(A)) (y(vb) - y(va))) * 2
+                float b = 2 * ((p_collision_b[i]->pos.x - p_front_b[i].pos.x) * (p_collision_b[i]->vel.x - p_front_b[i].vel.x)
+                        + (p_collision_b[i]->pos.y - p_front_b[i].pos.y) * (p_collision_b[i]->vel.y - p_front_b[i].vel.y));
+                // (x(B) - x(A))² + (y(B) - y(A))² - (ra + rb)²
+                float c = (p_collision_b[i]->pos.x - p_front_b[i].pos.x) * (p_collision_b[i]->pos.x - p_front_b[i].pos.x)
+                    + (p_collision_b[i]->pos.y - p_front_b[i].pos.y) * (p_collision_b[i]->pos.y - p_front_b[i].pos.y)
+                    - (p_front_b[i].radius + p_collision_b[i]->radius) * (p_front_b[i].radius + p_collision_b[i]->radius);
+                
+                // only real numbers are important
+                float D = b * b - 4 * a * c;
+                if (D < 0)
+                    continue;
+
+                // (-b + sqrt(b² - 4a c)) / (2a)
+                float tc1 = (-b + sqrt(D)) / (2 * a);
+                // (-b + sqrt(b² - 4a c)) / (2a)
+                float tc2 = (-b + sqrt(D)) / (2 * a);
+
+                float tc;
+                if (tc1 >= 0.0f)
+                    if (tc2 >= 0 && tc2 < tc1)
+                        tc = tc2;
+                    else
+                        tc = tc1;
+                else if (tc2 >= 0.0f)
+                    tc = tc2;
+                else
+                    continue;
+                
+                
+                if (tc < min_dt) {
+                    min_dt = tc;
+
+                    p1 = i;
+                    p2 = p_collision_b[j];
+                }
+            }
+        }
+
+        update_pos(min_dt);
+
+        if (p1 != -1) {
+            printf("collision!\n");
+            // update backbuffer with the new velocities
+            p_back_b[p1].vel.x = (p_front_b[p1].vel.x * (p_front_b[p1].mass - p2->mass) + 2.0f * p2->mass * p2->vel.x) / (p_front_b[p1].mass + p2->mass);
+            p_back_b[p1].vel.y = (p_front_b[p1].vel.y * (p_front_b[p1].mass - p2->mass) + 2.0f * p2->mass * p2->vel.y) / (p_front_b[p1].mass + p2->mass);
+        }
+
+        SWAP(p_front_b, p_back_b);
+
+        sim_t += min_dt;
+        min_dt = delta_t - sim_t;
+    }
+}
 
 void on_create() {
-    p_front = malloc(sizeof(Particle) * PARTICLE_COUNT);
-    p_back = malloc(sizeof(Particle) * PARTICLE_COUNT);
-    p_collision = malloc(sizeof(Particle *) * PARTICLE_COUNT);
+    p_front_b = malloc(sizeof(Particle) * PARTICLE_COUNT);
+    p_back_b = malloc(sizeof(Particle) * PARTICLE_COUNT);
 
-    tree = quad_tree_create((Area){(Vector){0, 0}, (Vector){get_width(), get_height()}}, 0);
+    p_tree = quad_tree_create((Area){(Vector){0, 0}, (Vector){get_width(), get_height()}}, 0);
 
-    for (int i = 0; i < PARTICLE_COUNT; i++) {
-        p_front[i] = (Particle){1.0f, (Vector){(float)(rand() % get_width()), (float)(rand() % get_height())}, (Vector){rand() % 1000 / 1000.0f - 0.5f, rand() % 1000 / 1000.0f - 0.5f}};
-    }
+    p_front_b[0] = (Particle){1.0f, 1.0f, (Vector){70, 50}, (Vector){1.002f, 0}};
+    p_front_b[1] = (Particle){2.0f, 1.0f, (Vector){80, 50}, (Vector){0.0f, 0}};
 
-    // p_front[0] = (Particle){1.0f, (Vector){50, 125}, (Vector){0.5f, 0}};
-    // p_front[1] = (Particle){1.0f, (Vector){200, 125}, (Vector){0.0f, 0}};
-
-    // memcpy(p_back, p_front, sizeof(Particle) * PARTICLE_COUNT);
+    memcpy(p_back_b, p_front_b, sizeof(Particle) * PARTICLE_COUNT);
 }
-
-void collide_bad() {
-    for (int i = 0; i < PARTICLE_COUNT; i++) {
-        if (p_front[i].position.x < 0) {
-            p_back[i].position.x = 0;
-            p_back[i].velocity.x *= -1;
-            continue;
-        } else if (p_front[i].position.x > get_width()) {
-            p_back[i].position.x = get_width();
-            p_back[i].velocity.x *= -1;
-            continue;
-        }
-
-        else if (p_front[i].position.y < 0) {
-            p_back[i].position.y = 0;
-            p_back[i].velocity.y *= -1;
-            continue;
-        } else if (p_front[i].position.y > get_height()) {
-            p_back[i].position.y = get_height();
-            p_back[i].velocity.y *= -1;
-            continue;
-        }
-
-        bool collision = false;
-        for (int j = 0; j < PARTICLE_COUNT; j++) {
-            if (i == j)
-                continue;
-
-            if (1.0f >= (p_front[i].position.x - p_front[j].position.x) * (p_front[i].position.x - p_front[j].position.x) +
-                            (p_front[i].position.y - p_front[j].position.y) * (p_front[i].position.y - p_front[j].position.y)) {
-
-                // p_back[j].velocity.x = p_front[j].velocity.x * p_front[j].mass - p_front[i].mass) * (2 * _front[i].velocity.x * p_front[i].mass) / (p_front[i].mass + p_front[j].mass);
-                // p_back[j].velocity.y = p_front[j].velocity.y * (p_front[j].mass - p_front[i].mass) * (2 * p_front[i].velocity.y * p_front[i].mass) (p_front[i].mass + p_front[j].mass);
-
-                p_back[i].velocity.x =
-                    (p_front[i].velocity.x * (p_front[i].mass - p_front[j].mass) + 2.0f * p_front[j].mass * p_front[j].velocity.x) / (p_front[i].mass + p_front[j].mass);
-
-                p_back[i].velocity.y =
-                    (p_front[i].velocity.y * (p_front[i].mass - p_front[j].mass) + 2.0f * p_front[j].mass * p_front[j].velocity.y) / (p_front[i].mass + p_front[j].mass);
-
-                collision = true;
-                break;
-            }
-        }
-        if (!collision)
-            p_back[i] = p_front[i];
-    }
-}
-
-void collide() {
-    for (int i = 0; i < PARTICLE_COUNT; i++) {
-        if (p_front[i].position.x < 0) {
-            p_back[i].position.x = 0;
-            p_back[i].velocity.x *= -1;
-            continue;
-        } else if (p_front[i].position.x > get_width()) {
-            p_back[i].position.x = get_width();
-            p_back[i].velocity.x *= -1;
-            continue;
-        }
-
-        else if (p_front[i].position.y < 0) {
-            p_back[i].position.y = 0;
-            p_back[i].velocity.y *= -1;
-            continue;
-        } else if (p_front[i].position.y > get_height()) {
-            p_back[i].position.y = get_height();
-            p_back[i].velocity.y *= -1;
-            continue;
-        }
-
-        int p_count = 0;
-        // Particle **particles = malloc(sizeof(void *) * quad_tree_get_size_in_area(tree, (Area){p_front[i].position, (Vector){1, 1}}));
-        quad_tree_get_elements(tree, (Area){p_front[i].position, (Vector){1, 1}}, (void **)p_collision, &p_count);
-
-        for (int j = 0; j < p_count; j++) {
-
-            if (&p_front[i] == p_collision[j])
-                continue;
-
-            if (1.0f >= (p_front[i].position.x - p_collision[j]->position.x) * (p_front[i].position.x - p_collision[j]->position.x) +
-                            (p_front[i].position.y - p_collision[j]->position.y) * (p_front[i].position.y - p_collision[j]->position.y)) {
-
-                p_back[i].velocity.x = (p_front[i].velocity.x * (p_front[i].mass - p_collision[j]->mass) + 2.0f * p_collision[j]->mass * p_collision[j]->velocity.x) /
-                                       (p_front[i].mass + p_collision[j]->mass);
-                p_back[i].velocity.y = (p_front[i].velocity.y * (p_front[i].mass - p_collision[j]->mass) + 2.0f * p_collision[j]->mass * p_collision[j]->velocity.y) /
-                                       (p_front[i].mass + p_collision[j]->mass);
-                                    
-                break;
-            }
-        }
-
-    }
-}
-
 
 void on_update() {
     clear();
-
-    memcpy(p_back, p_front, sizeof(Particle) * PARTICLE_COUNT);
-    quad_tree_clear(tree);
-    for (int i = 0; i < PARTICLE_COUNT; i++)
-        quad_tree_add_element(tree, &p_front[i], (Area){p_front[i].position, (Vector){1, 1}});    
-
-    // collide_bad();
-    collide();
-    printf("dt: %f\n", delta_time);
-
-    for (int i = 0; i < PARTICLE_COUNT; i++)
-        p_back[i].position = vector_add(p_front[i].position, p_back[i].velocity);
-
-    // Swap buffers
-    Particle *temp = p_front;
-    p_front = p_back;
-    p_back = temp;
-
     for (int i = 0; i < PARTICLE_COUNT; i++) {
-        // int col = 255 * ((float)(i + 1) / (float)PARTICLE_COUNT);
-        // color((Color){col, col, col, 255});
-        draw_pixel(p_front[i].position.x, p_front[i].position.y);
+        draw_circle(p_front_b[i].pos.x, p_front_b[i].pos.y, 0.0f);
     }
+}
+
+void key_cb(int key, int action, int flags) {
+    if (key == KEY_SPACE && action == KEY_PRESS)
+        evaluate(1.0f);
 }
 
 int main() {
     srand(time(NULL));
 
-    engine_create(1000, 500, 1, 1);
+    engine_create(500, 500, 5, 5);
+    engine_set_user_input(key_cb, NULL);
     scene_create(on_create, on_update, NULL);
     clear_color(COLOR_VERY_DARK_GREY);
     engine_start();

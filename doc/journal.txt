@@ -53,3 +53,9 @@ sondern dass nur noch 10 bis 20 Teilchen überprüffen muss.
 So reduziert sich die Zeit zum Berechnen auf einen Bruchteil von vorhin.
 
 Programmier Zeit: 10h
+
++-------------------------------------------- 25.04.2022 --------------------------------------------+
+
+Optimisierungen:
+
+- sortieren nach Velocity

@@ -5,9 +5,8 @@
 
 typedef struct {
     float mass;
-    float radius;
-    Vector pos;
-    Vector vel;
+    Vector position;
+    Vector velocity;
 } Particle;
 
 #endif

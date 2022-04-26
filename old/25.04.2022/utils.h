@@ -3,9 +3,6 @@
 
 #include <stdbool.h>
 
-#define SWAP(a, b) { __typeof__(a) temp = a; a = b; b = temp; }
-#define LERP(s, d, i) s + d*i
-
 typedef struct {
     float x;
     float y;
@@ -20,6 +17,5 @@ typedef struct {
 
 bool area_contains(Area a1, Area a2);
 bool area_overlaps(Area a1, Area a2);
-
 
 #endif

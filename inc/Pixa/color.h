@@ -28,8 +28,7 @@
 #define COLOR_BLACK                 (Color) {  0,   0,   0, 255}
 #define COLOR_BLANK                 (Color) {  0,   0,   0,   0}
 
-typedef struct
-{
+typedef struct {
     uint8_t r;
     uint8_t g; 
     uint8_t b;

@@ -1,8 +1,9 @@
 #ifndef PIXA_SCENE_H
 #define PIXA_SCENE_H
 
-typedef struct
-{
+#include "stdbool.h"
+
+typedef struct {
     bool is_active;
 
     void (*on_create)();
