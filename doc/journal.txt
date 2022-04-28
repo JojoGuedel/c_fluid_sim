@@ -56,6 +56,25 @@ Programmier Zeit: 10h
 
 +-------------------------------------------- 25.04.2022 --------------------------------------------+
 
-Optimisierungen:
+Ich habe das Problem, dass irgendetwas mit meiner Kollision-Detektion nicht richtig funktioniert. 
+Ich vermute, dass die Partikel zum Zeitpunkt der Kollision schon ineinander sind, und somit im nächsten Frame nochmals kollidieren,
+obwohl sie es nicht sollten.
+Mir ist die Idee gekommen, dass ich das ganze mit 'continuous collisiondetection' lösen möchte.
+Das Ziel dieser Methode ist, den Zeitpunkt einer Kollision genau bestimmen zu können und somit kann nie passieren, dass zwei Partikel ineinander geraten.
+Ich habe versucht die Methoden herzuleiten, bin bis jetzt aber noch zu keinem Ziel gekommen.
 
-- sortieren nach Velocity
+Programmier Zeit: 3h
+
++-------------------------------------------- 28.04.2022 --------------------------------------------+
+
+Ich habe es endlich geschaft, die Kollisionspunkte zu bestimmen von zwei Partikeln, wenn die Position und die Geschwindigkeit gegeben ist.
+Somit kann ich jetzt immer genau bis zur nächsten Kollision simulieren.
+So kann ich garantieren, dass nie eine Kollision verlohren geht, weil z.B. die Geschwindigkeit zu hoch ist die 'delta_time' zu hoch ist. 
+
+Ich habe gemerkt, dass es zu doppel Kollisionen kommt, aufgrund von floating point precision errors.
+Um das zu umgehen habe ich eine TOLERANCE definiert.
+Jetzt kann es vorkommen, dass in ganz seltenen Fällen eine Kollision nicht erkannt wird.
+
+Mir ist zudem noch aufgefallen, dass ich die neuen Velocities flasch berechne.
+
+Programmier Zeit: 3h

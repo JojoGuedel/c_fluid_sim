@@ -4,7 +4,7 @@
 #include "utils.h"
 
 #ifndef QUAD_TREE_MAX_DEPTH
-#define QUAD_TREE_MAX_DEPTH 4
+#define QUAD_TREE_MAX_DEPTH 1
 #endif
 
 typedef struct QuadTree {

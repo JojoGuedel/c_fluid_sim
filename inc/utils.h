@@ -7,8 +7,8 @@
 #define LERP(s, d, i) s + d*i
 
 typedef struct {
-    float x;
-    float y;
+    double x;
+    double y;
 } Vector;
 
 Vector vector_add(Vector vec1, Vector vec2);
