@@ -28,6 +28,10 @@ Particle *p_buffer;
 QuadTree *p_tree;
 Particle **p_collision_b;
 
+float vel_after_collision(float v1, float m1, float v2, float m2) {
+    return (v1 * (m1 - m2) + 2.0f * m2 * v2) / (m1 + m2);
+}
+
 void evaluate(float delta_t) {
     // TODO: cache dt for every particle
     float sim_t = 0;
@@ -110,14 +114,35 @@ void evaluate(float delta_t) {
         // update particles with the new velocities
         if (p1 != NULL) {
             printf("collision!\n");
-            Vector v1 = p1->vel;
-            Vector v2 = p2->vel;
+            // Vector v1 = p1->vel;
+            // Vector v2 = p2->vel;
 
-            p1->vel.x = (v1.x * (p1->mass - p2->mass) + 2.0 * p2->mass * v2.x) / (p1->mass + p2->mass);
-            p1->vel.y = (v1.y * (p1->mass - p2->mass) + 2.0 * p2->mass * v2.y) / (p1->mass + p2->mass);
+            // p1->vel.x = (v1.x * (p1->mass - p2->mass) + 2.0 * p2->mass * v2.x) / (p1->mass + p2->mass);
+            // p1->vel.y = (v1.y * (p1->mass - p2->mass) + 2.0 * p2->mass * v2.y) / (p1->mass + p2->mass);
 
-            p2->vel.x = (v2.x * (p2->mass - p1->mass) + 2.0 * p1->mass * v1.x) / (p1->mass + p2->mass);
-            p2->vel.y = (v2.y * (p2->mass - p1->mass) + 2.0 * p1->mass * v1.y) / (p1->mass + p2->mass);
+            // p2->vel.x = (v2.x * (p2->mass - p1->mass) + 2.0 * p1->mass * v1.x) / (p1->mass + p2->mass);
+            // p2->vel.y = (v2.y * (p2->mass - p1->mass) + 2.0 * p1->mass * v1.y) / (p1->mass + p2->mass);
+            
+            // TODO: do this without vectors but with trigonometry
+            Vector n = vector_sub(p2->pos, p1->pos);
+            Vector un = vector_div(n, vector_len(n));
+            Vector ut = (Vector){-un.y , un.x};
+
+            float n1 = vector_dot(un, p1->vel);
+            float t1 = vector_dot(ut, p1->vel);
+            float n2 = vector_dot(un, p2->vel);
+            float t2 = vector_dot(ut, p2->vel);
+
+            float n1_a = vel_after_collision(n1, p1->mass, n2, p2->mass);
+            float n2_a = vel_after_collision(n2, p2->mass, n1, p1->mass);
+
+            Vector v1n = vector_mlt(un, n1_a);
+            Vector v1t = vector_mlt(ut, t1);
+            Vector v2n = vector_mlt(un, n2_a);
+            Vector v2t = vector_mlt(ut, t2);
+
+            p1->vel = vector_add(v1n, v1t);
+            p2->vel = vector_add(v2n, v2t);
 
             // clear particle pointers
             p1 = NULL;
@@ -136,8 +161,8 @@ void on_create() {
     p_tree = quad_tree_create((Area){(Vector){0, 0}, (Vector){get_width(), get_height()}}, 0);
     p_collision_b = malloc(sizeof(Particle *) * PARTICLE_COUNT);
 
-    p_buffer[0] = (Particle){1.0, 4.0, (Vector){70, 49}, (Vector){2.0, 0}};
-    p_buffer[1] = (Particle){1.0, 1.0, (Vector){80, 50}, (Vector){0.0, 0}};
+    p_buffer[0] = (Particle){3.0, 4.0, (Vector){70, 43}, (Vector){2.0, 0}};
+    p_buffer[1] = (Particle){1.0, 4.0, (Vector){80, 50}, (Vector){0.0, 0}};
 }
 
 void on_update() {

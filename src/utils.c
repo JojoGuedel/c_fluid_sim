@@ -1,10 +1,29 @@
 #include "utils.h"
+#include <corecrt_math.h>
 #include <stdbool.h>
 
 Vector vector_add(Vector vec1, Vector vec2) {
-    vec1.x += vec2.x;
-    vec1.y += vec2.y;
-    return vec1;
+    return (Vector){vec1.x + vec2.x, vec1.y + vec2.y};
+}
+
+Vector vector_sub(Vector vec1, Vector vec2) {
+    return (Vector){vec1.x - vec2.x, vec1.y - vec2.y};
+}
+
+Vector vector_mlt(Vector vec, float a) {
+    return (Vector){vec.x * a, vec.y * a};
+}
+
+Vector vector_div(Vector vec, float a) {
+    return (Vector){vec.x / a, vec.y / a};
+}
+
+float vector_dot(Vector vec1, Vector vec2) {
+    return vec1.x * vec2.x + vec1.y * vec2.y;
+}
+
+float vector_len(Vector vec) {
+    return sqrt(vec.x * vec.x + vec.y * vec.y);
 }
 
 bool area_contains(Area a1, Area a2) {

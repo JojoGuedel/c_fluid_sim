@@ -12,6 +12,12 @@ typedef struct {
 } Vector;
 
 Vector vector_add(Vector vec1, Vector vec2);
+Vector vector_sub(Vector vec1, Vector vec2);
+Vector vector_mlt(Vector vec, float a);
+Vector vector_div(Vector vec, float a);
+float vector_dot(Vector vec1, Vector vec2);
+float vector_len(Vector vec);
+
 
 typedef struct {
     Vector pos;
