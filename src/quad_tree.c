@@ -76,7 +76,7 @@ void quad_tree_get_all_elements(QuadTree *tree, void **elements, int *element_co
 
 
 void quad_tree_get_elements(QuadTree *tree, Area area, void **elements, int *element_count) {
-    // draw_rect(tree->area.pos.x, tree->area.pos.y, tree->area.size.x, tree->area.size.y);
+     draw_rect(tree->area.pos.x, tree->area.pos.y, tree->area.size.x, tree->area.size.y);
 
     if (!area_overlaps(tree->area, area))
         return;

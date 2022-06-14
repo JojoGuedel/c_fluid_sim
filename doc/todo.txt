@@ -2,18 +2,21 @@
 #             reached milestones             #
 #============================================#
 
+o- implement basic particles
+|- solve particle collision with impulse
+
 #============================================#
 #                 working on                 #
 #============================================#
 
-o- implement basic particles
-|- solve particle collision with impulse
+o- implement interactive objects
 
 #============================================#
 #                 milestones                 #
 #============================================#
 
-
+o- add a fluid shader
+o- add forces
+o- implement compute shaders for better performance
 o- create basic user gui
 o- create advanced user gui
-o- implement compute shaders for better performance

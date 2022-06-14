@@ -78,3 +78,13 @@ Jetzt kann es vorkommen, dass in ganz seltenen Fällen eine Kollision nicht erka
 Mir ist zudem noch aufgefallen, dass ich die neuen Velocities flasch berechne.
 
 Programmier Zeit: 3h
+
++-------------------------------------------- 28.04.2022 --------------------------------------------+
+
+Heute habe ich viel in GeoGebra gearbeitet.
+Ich habe die Formeln für das bestimmen einer Kollision hergeleitet.
+Leider funktioniert noch etwas nicht mit der Implementation.
+Ich möchte den Code sowieso wiedereinmal etwas erneuern, damit das ganze etwas übersichtlicher wird.
+Zudem muss ich irgendwann mal die Quad-Trees erneuern, weil sie die ganze zeit Probleme machen und noch nicht alles können, was sie können sollten.
+
+Programmier Zeit: 3h
