@@ -4,6 +4,8 @@
 #include "utils.h"
 
 typedef struct {
+    Vector pos1;
+    Vector pos2;
     Area area;
 
     float r;

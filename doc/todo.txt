@@ -3,18 +3,27 @@
 #============================================#
 
 o- implement basic particles
-|- solve particle collision with impulse
+|- solve particle-particle collision with impulse
+
+o- solve particle-border-collsision
 
 #============================================#
 #                 working on                 #
 #============================================#
 
 o- implement interactive objects
+o- handle specialcases (vertical border)
+o- fix border drawing
 
 #============================================#
 #                 milestones                 #
 #============================================#
 
+o- improve quad-trees so that they can be modified
+
+#============================================#
+#                  optional                  #
+#============================================#
 o- add a fluid shader
 o- add forces
 o- implement compute shaders for better performance

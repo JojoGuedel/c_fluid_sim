@@ -59,6 +59,8 @@ bool quad_tree_add_element(QuadTree *tree, void *element, Area area) {
     tree->elements = realloc(tree->elements, sizeof(void *) * (tree->element_count + 1));
     tree->elements[tree->element_count++] = element;
 
+    // draw_rect(area.pos.x, area.pos.y, area.size.x, area.size.y);
+
     return true;
 }
 
@@ -76,7 +78,7 @@ void quad_tree_get_all_elements(QuadTree *tree, void **elements, int *element_co
 
 
 void quad_tree_get_elements(QuadTree *tree, Area area, void **elements, int *element_count) {
-     draw_rect(tree->area.pos.x, tree->area.pos.y, tree->area.size.x, tree->area.size.y);
+    // draw_rect(tree->area.pos.x, tree->area.pos.y, tree->area.size.x, tree->area.size.y);
 
     if (!area_overlaps(tree->area, area))
         return;
