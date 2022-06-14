@@ -1,6 +1,9 @@
-#include "utils.h"
-#include <corecrt_math.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <stdbool.h>
+
+
+#include "utils.h"
 
 Vector vector_add(Vector vec1, Vector vec2) {
     return (Vector){vec1.x + vec2.x, vec1.y + vec2.y};
@@ -24,6 +27,36 @@ float vector_dot(Vector vec1, Vector vec2) {
 
 float vector_len(Vector vec) {
     return sqrt(vec.x * vec.x + vec.y * vec.y);
+}
+
+Vector vector_mirror(Vector vec, Vector straight_vec) {
+    float a = atan2(straight_vec.y, straight_vec.x);
+    float s = straight_vec.y / straight_vec.x;
+
+    // check special cases
+    if (s == 0.0)
+        return (Vector){vec.x, -vec.y};
+
+    // (x(v) - y(v) / s) sin²(a)
+    float dx = (vec.x - vec.y / s) * sin(a) * sin(a);
+    // (x(v) - y(v) / s) sin(a) sin(π / 2 - a)
+    float dy = (vec.x - vec.y / s) * sin(a) * sin(M_PI / 2 - a);
+
+    return (Vector){vec.x - 2 * dx, vec.y + 2 * dy};
+}
+
+Vector vector_rotate(Vector vec, float ang) {
+    // x' = x cos θ − y sin θ
+    // y' = x sin θ + y cos θ
+    return (Vector){vec.x * cos(ang) - vec.y * sin(ang), vec.x * sin(ang) + vec.y * cos(ang)};
+}
+
+Vector vector_from_angle(float ang) {
+    return (Vector){cos(ang), sin(ang)};
+}
+
+float vector_to_angle(Vector vec) {
+    return atan2(vec.y, vec.x);
 }
 
 bool area_contains(Area a1, Area a2) {

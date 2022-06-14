@@ -49,7 +49,7 @@ Ich möchte versuchen, eine Art, kontinuirliche Kollisionserkennung einzubauen, 
 Ich habe heute den Quad-Tree implementiert.
 Das ist eine Art, ganz schnell, eine Liste zu durchsuchen.
 Die Idee dahinter ist, dass ich nicht mehr alle Teilchen miteinander testen muss, beid er Kollision,
-sondern dass nur noch 10 bis 20 Teilchen überprüffen muss.
+sondern dass nur noch 10 bis 20 Teilchen überprüfen muss.
 So reduziert sich die Zeit zum Berechnen auf einen Bruchteil von vorhin.
 
 Programmier Zeit: 10h
@@ -79,7 +79,7 @@ Mir ist zudem noch aufgefallen, dass ich die neuen Velocities flasch berechne.
 
 Programmier Zeit: 3h
 
-+-------------------------------------------- 28.04.2022 --------------------------------------------+
++-------------------------------------------- 13.06.2022 --------------------------------------------+
 
 Heute habe ich viel in GeoGebra gearbeitet.
 Ich habe die Formeln für das bestimmen einer Kollision hergeleitet.
@@ -88,3 +88,18 @@ Ich möchte den Code sowieso wiedereinmal etwas erneuern, damit das ganze etwas 
 Zudem muss ich irgendwann mal die Quad-Trees erneuern, weil sie die ganze zeit Probleme machen und noch nicht alles können, was sie können sollten.
 
 Programmier Zeit: 3h
+
++-------------------------------------------- 14.06.2022 --------------------------------------------+
+
+Ich hätte nie gedacht, dass dieser Tag kommen würde.
+Die Kollisionserkennung mit den statischen Border-Objekten funktionert.
+Ich habe nicht einmal stundenlang in GeoGebra meine Algebra überprüfen müssen.
+Die evaluation Funktion siezt jetzt schon ein bisschen besser aus, aber es bleibt noch einiges übrig, zum überarbeiten.
+
+Als nächstes steht aber der Härtetest an.
+Ich möchte herausfinden, wie viele Objekte die Physik-Engine überleben kann.
+Zuvor möchte ich aber noch machen, dass man die Border-Objekte von Hand zeichnen kann.
+Zudem möchte ich ein paar vorgefertigte Szenen machen, die die Form eines flügels oder eines Rechtecks darstellen.
+Ich bin gespannt ob turbulente Luft sichtbar sein wird oder ob die ganze Arbeit für nichts war.
+
+Programmier Zeit: 6h

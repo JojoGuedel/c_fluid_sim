@@ -5,6 +5,7 @@
 
 #define SWAP(a, b) { __typeof__(a) temp = a; a = b; b = temp; }
 #define LERP(s, d, i) s + d*i
+#define CLAMP(val, min, max) {max(min(val, max), min)}
 
 typedef struct {
     double x;
@@ -18,6 +19,10 @@ Vector vector_div(Vector vec, float a);
 float vector_dot(Vector vec1, Vector vec2);
 float vector_len(Vector vec);
 
+Vector vector_mirror(Vector vec, Vector straight_vec);
+Vector vector_rotate(Vector vec, float ang);
+Vector vector_from_angle(float ang);
+float vector_to_angle(Vector vec);
 
 typedef struct {
     Vector pos;

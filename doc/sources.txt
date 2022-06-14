@@ -1,3 +1,5 @@
 Real-Time Fluid Dynamics for Games: http://graphics.cs.cmu.edu/nsp/course/15-464/Fall09/papers/StamFluidforGames.pdf
 2-Dimensional Elastic Collisions without Trigonometry: https://www.vobarian.com/collisions/2dcollisions2.pdf
+
 Formula for rotating a vector in 2D: https://matthew-brett.github.io/teaching/rotation_2d.html
+Vector rotation: https://stackoverflow.com/questions/14607640/rotating-a-vector-in-3d-space

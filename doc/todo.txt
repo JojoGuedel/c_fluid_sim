@@ -6,12 +6,12 @@ o- implement basic particles
 |- solve particle-particle collision with impulse
 
 o- solve particle-border-collsision
+o- implement interactive objects
 
 #============================================#
 #                 working on                 #
 #============================================#
 
-o- implement interactive objects
 o- handle specialcases (vertical border)
 o- fix border drawing
 
