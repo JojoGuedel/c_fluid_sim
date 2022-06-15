@@ -2,30 +2,26 @@
 #include <stdlib.h>
 
 #include "border.h"
+#include "utils.h"
 #include "Pixa/graphics.h"
 
-Border border_create(Vector pos1, Vector pos2, float thickness) {
-    // slope of the border
-    float s = (pos2.y - pos1.y) / (pos2.x - pos1.x);
-    // angle to the x-axis
-    float a = atan2(pos2.y - pos1.y, pos2.x - pos1.x);
-    // y-axis offset
-    float m = pos1.y - s * pos1.x;
-    
+Border border_create(Vector p1, Vector p2, float thickness) {
+    Straight s = straight_create_p(p1, p2);
+
     // sort the positions so that the physics-engine doen't have to do unnecessary checks
-    if (s == INFINITY) {
-        if (pos2.y < pos1.y)
-            SWAP(pos1, pos2)
+    if (s.a == INFINITY) {
+        if (p2.y < p1.y)
+            SWAP(p1, p2)
     } else {
-        if (pos2.x < pos1.x)
-            SWAP(pos1, pos2)
+        if (p2.x < p1.x)
+            SWAP(p1, p2)
     }
 
     // pre-compute the area for the quad-tree
     Area area = (Area) {
-        (Vector){min(pos1.x, pos2.x) - thickness, min(pos1.y, pos2.y) - thickness},
-        (Vector){fabs(pos2.x - pos1.x) + 2 * thickness, fabs(pos2.y - pos1.y) + 2 * thickness}
+        (Vector){min(p1.x, p2.x) - thickness, min(p1.y, p2.y) - thickness},
+        (Vector){fabs(p2.x - p1.x) + 2 * thickness, fabs(p2.y - p1.y) + 2 * thickness}
     };
 
-    return (Border){pos1, pos2, area, thickness, a, s, m};
+    return (Border){p1, p2, thickness, area, s};
 }

@@ -89,6 +89,10 @@ Straight straight_create_p(Vector p1, Vector p2) {
     return (Straight){a, b, alpha};
 }
 
+float straight_f(Straight s, float x) {
+    return s.a * x + s.b;
+}
+
 Vector straight_lerp_v(Straight s, Vector p1, Vector p2, float val) {
     float f1 = sqrt(p1.x * p1.x + (p1.y - s.b) * (p1.y - s.b));
     float f2 = sqrt(p2.x * p2.x + (p2.y - s.b) * (p2.y - s.b));

@@ -5,7 +5,7 @@
 
 #define SWAP(a, b) { __typeof__(a) temp = a; a = b; b = temp; }
 #define LERP(s, d, i) s + d*i
-#define CLAMP(val, min, max) {max(min(val, max), min)}
+#define CLAMP(val, min, max) max(min(val, max), min)
 
 // Vector
 typedef struct {
@@ -42,6 +42,11 @@ typedef struct{
     float b;
     float alpha;
 } Straight;
+
+Straight straight_create_v(Vector vec, float b);
+Straight straight_create_p(Vector p1, Vector p2);
+
+float straight_f(Straight s, float x);
 
 Vector straight_lerp_v(Straight s, Vector p1, Vector p2, float val);
 Vector straight_lerp_f(Straight s, float p1, float p2, float val);
