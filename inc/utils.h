@@ -7,6 +7,7 @@
 #define LERP(s, d, i) s + d*i
 #define CLAMP(val, min, max) {max(min(val, max), min)}
 
+// Vector
 typedef struct {
     double x;
     double y;
@@ -24,6 +25,7 @@ Vector vector_rotate(Vector vec, float ang);
 Vector vector_from_angle(float ang);
 float vector_to_angle(Vector vec);
 
+// Area
 typedef struct {
     Vector pos;
     Vector size;
@@ -32,5 +34,18 @@ typedef struct {
 bool area_contains(Area a1, Area a2);
 bool area_overlaps(Area a1, Area a2);
 
+// Straight
+// f(x) = ax + b 
+// with angle alpha
+typedef struct{
+    float a;
+    float b;
+    float alpha;
+} Straight;
+
+Vector straight_lerp_v(Straight s, Vector p1, Vector p2, float val);
+Vector straight_lerp_f(Straight s, float p1, float p2, float val);
+float straight_inv_lerp(Straight s, Vector vec, Vector p1, Vector p2);
+float inv_lerp(float val, float p1, float p2);
 
 #endif
