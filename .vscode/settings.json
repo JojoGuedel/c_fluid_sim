@@ -24,6 +24,6 @@
         "streambuf": "c",
         "unordered_map": "c",
         "cstdlib": "c",
-        "xlocale": "c"
+        "xlocale": "c",
     }
 }

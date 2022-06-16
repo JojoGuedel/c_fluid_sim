@@ -31,20 +31,16 @@ float vector_len(Vector vec) {
     return sqrt(vec.x * vec.x + vec.y * vec.y);
 }
 
-Vector vector_mirror(Vector vec, Vector straight_vec) {
-    float a = atan2(straight_vec.y, straight_vec.x);
-    float s = straight_vec.y / straight_vec.x;
+Vector vector_mirror(Vector vec, Straight s) {
+    if (fmod(s.alpha, M_PI) == M_PI / 2)
+        vec.y = -vec.y;
 
-    // check special cases
-    if (s == 0.0)
-        return (Vector){vec.x, -vec.y};
+    // (x(P) - x_1) sin²(a)
+    float dx = (vec.x - (vec.y - s.b) / s.a) * sin(s.alpha) * sin(s.alpha);
+    // (x(P) - x_1) sin(a) sin(π / 2 - a)
+    float dy = (vec.x - (vec.y - s.b) / s.a) * sin(s.alpha) * sin(M_PI / 2 - s.alpha);
 
-    // (x(v) - y(v) / s) sin²(a)
-    float dx = (vec.x - vec.y / s) * sin(a) * sin(a);
-    // (x(v) - y(v) / s) sin(a) sin(π / 2 - a)
-    float dy = (vec.x - vec.y / s) * sin(a) * sin(M_PI / 2 - a);
-
-    return (Vector){vec.x - 2 * dx, vec.y + 2 * dy};
+    return (Vector){vec.x - 2.0f * dx, vec.y + 2.0f * dy};
 }
 
 Vector vector_rotate(Vector vec, float ang) {
@@ -101,10 +97,6 @@ Vector straight_lerp(Straight s, Vector p1, Vector p2, float lerp) {
 }
 
 float straight_inv_lerp(Straight s, Vector p1, Vector p2, Vector vec) {
-    float y = straight_func(s, vec.x) - vec.y;
-    if(y < -10 || y > 10)
-        printf("not on the straight\n");
-
     if (fmod(s.alpha, M_PI / 2.0f) > M_PI / 4.0f && fmod(s.alpha, M_PI_2 / 2.0f) < M_PI / 3.0f)
         return (vec.y - p1.y) / (p2.y - p1.y);
     else

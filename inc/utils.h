@@ -10,13 +10,24 @@
 #define LERP(s, d, i) s + d*i
 #define CLAMP(val, min, max) max(min(val, max), min)
 
-// Vector
-#define VECTOR_ZERO (Vector) {0.0f, 0.0f}
-
 typedef struct {
     double x;
     double y;
 } Vector;
+
+typedef struct {
+    Vector pos;
+    Vector size;
+} Area;
+
+typedef struct{
+    float a;
+    float b;
+    float alpha;
+} Straight;
+
+// Vector
+#define VECTOR_ZERO (Vector) {0.0f, 0.0f}
 
 Vector vector_add(Vector vec1, Vector vec2);
 Vector vector_sub(Vector vec1, Vector vec2);
@@ -25,28 +36,18 @@ Vector vector_div(Vector vec, float a);
 float vector_dot(Vector vec1, Vector vec2);
 float vector_len(Vector vec);
 
-Vector vector_mirror(Vector vec, Vector straight_vec);
+Vector vector_mirror(Vector vec, Straight s);
 Vector vector_rotate(Vector vec, float ang);
 Vector vector_from_angle(float ang);
 float vector_to_angle(Vector vec);
 
 // Area
-typedef struct {
-    Vector pos;
-    Vector size;
-} Area;
-
 bool area_contains(Area a1, Area a2);
 bool area_overlaps(Area a1, Area a2);
 
 // Straight
 // f(x) = ax + b 
 // with angle alpha
-typedef struct{
-    float a;
-    float b;
-    float alpha;
-} Straight;
 
 Straight straight_create_ab(float a, float b);
 Straight straight_create_alphab(float alpha, float b);
