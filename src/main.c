@@ -21,8 +21,6 @@
 #include "border.h"
 
 #define PARTICLE_COUNT 1
-// this is needed because of floating point precision errors
-#define TOLERANCE 0.000001f
 
 Particle *part_buf;
 QuadTree *part_tree;
@@ -52,17 +50,17 @@ typedef enum {
     COLL_CASE_FRO = 3,
 } CollisionType;
 
-float check_collision_part_part(Particle* p1, Particle* p2) {
+float check_collision_part_part(Vector p1, Vector v1, float r1, Vector p2, Vector v2, float r2) {
     // (x(vb) - x(va))² + (y(vb) - y(va))²
-    float a = (p2->vel.x - p1->vel.x) * (p2->vel.x - p1->vel.x)
-            + (p2->vel.y - p1->vel.y) * (p2->vel.y - p1->vel.y);
+    float a = (v2.x - v1.x) * (v2.x - v1.x)
+            + (v2.y - v1.y) * (v2.y - v1.y);
     // ((x(B) - x(A)) (x(vb) - x(va)) + (y(B) - y(A)) (y(vb) - y(va))) * 2
-    float b = 2 * ((p2->pos.x - p1->pos.x) * (p2->vel.x - p1->vel.x)
-                    + (p2->pos.y - p1->pos.y) * (p2->vel.y - p1->vel.y));
+    float b = 2 * ((p2.x - p1.x) * (v2.x - v1.x)
+                 + (p2.y - p1.y) * (v2.y - v1.y));
     // (x(B) - x(A))² + (y(B) - y(A))² - (ra + rb)²
-    float c = (p2->pos.x - p1->pos.x) * (p2->pos.x - p1->pos.x)
-            + (p2->pos.y - p1->pos.y) * (p2->pos.y - p1->pos.y)
-            - (p1->r + p2->r) * (p1->r + p2->r);
+    float c = (p2.x - p1.x) * (p2.x - p1.x)
+            + (p2.y - p1.y) * (p2.y - p1.y)
+            - (r1 + r2) * (r1 + r2);
     
     // only real numbers are important
     float D = b * b - 4 * a * c;
@@ -84,7 +82,7 @@ float check_collision_part_part(Particle* p1, Particle* p2) {
     return tc;
 }
 
-float check_collision_part_bord(Particle* p, Border* b) {
+float check_collision_part_bord(Particle* p, Border* b, Vector* ret_direction) {
     // (+-(r_c + r_l) / sin(π / 2 - a) + m - y(P) + x(P) s) / (y(v) - x(v) s)
     float min_dist = (p->r + b->r);
     float tc1 = ( min_dist / sin(M_PI / 2.0f - b->s.alpha) + b->s.b - p->pos.y + p->pos.x * b->s.a) / (p->vel.y - p->vel.x * b->s.a);
@@ -94,27 +92,47 @@ float check_collision_part_bord(Particle* p, Border* b) {
     float tc = (tc2 >= TOLERANCE && (tc2 < tc1 || tc1 <= TOLERANCE)) ? tc2 : tc1;
 
     // find out if the particle is going to miss the section
-    // dx = y(P) - a_s x(P) - m sin(a_w) sin(π / 2 - a_w)
-    float np_x = (p->pos.y - p->pos.x * b->s.a - b->s.b) * sin(b->s.alpha) * sin(M_PI / 2.0f - b->s.alpha);
-    // dy = (y(P) - a_s x(P) - m) (sin(a_w) sin(a_w) - 1)
-    float np_y = (p->pos.y - p->pos.x * b->s.a) * (sin(b->s.alpha) * sin(b->s.alpha) - 1);
-
-    Vector nadir_point = (Vector) {np_x, np_y};
-    float lerp_val = straight_inv_lerp(b->s, nadir_point, b->pos1, b->pos2);
-    printf("%f", lerp_val);
-    lerp_val = min(max(lerp_val, 0.0f), 1.0f);
-    printf("%f", lerp_val);
-
     Vector p_cp = (Vector){p->pos.x + p->vel.x * tc, p->pos.y + p->vel.y * tc};
-    Vector s_cp = straight_lerp_v(b->s, b->pos1, b->pos2, lerp_val);
+    Vector np_d = (Vector) {
+        // dx = (y(P') - s x(P') - m) sin(a) sin(π / 2 - a)
+        (p_cp.y - b->s.a * p_cp.x - b->s.b) * sin(b->s.alpha) * sin(M_PI / 2 - b->s.alpha),
+        // dy = (y(P') - s x(P') - m) sin(a) sin(a) - (y(P') - s x(P') - m)
+        (p_cp.y - b->s.a * p_cp.x - b->s.b) * sin(b->s.alpha) * sin(b->s.alpha) - (p_cp.y - b->s.a * p_cp.x - b->s.b)};
+
+    Vector b_cp = vector_add(p_cp, np_d);
+    // inv_lerp to know if the circle hits the border outside of pos1 and pos2 or inside
+    float lerp = straight_inv_lerp(b->s, b->pos1, b->pos2, b_cp);
+
+    // return tc and set the angle if it hits the border inside pos1 and pos2
+    if (lerp <= 1.0f && lerp >= 0.0f) {
+        *ret_direction = vector_from_angle(b->s.alpha);
+        return tc;
+    }
+
+    // clamping the values between 0 and 1
+    lerp = min(max(lerp, 0.0f), 1.0f);
+
+    // set the new clamped collision point
+    b_cp = straight_lerp(b->s, b->pos1, b->pos2, lerp);
+
+    // calculate the new time
+    tc = check_collision_part_part(p->pos, p->vel, p->r, b_cp, VECTOR_ZERO, b->r);
+    // no chekcs needet, because it's guaranteed at this point, that the particle will hit the line
+    p_cp = (Vector){p->pos.x + p->vel.x * tc, p->pos.y + p->vel.y * tc};
+
+    color(COLOR_DARK_CYAN);
+    draw_circle(b_cp.x, b_cp.y, b->r);
+    // draw_circle(p_cp.x, p_cp.y, p->r);
+    color(COLOR_DARK_RED);
+    draw_circle(b_cp.x, b_cp.y, b->r);
+    color(COLOR_WHITE);
     
-    tc = check_collision_part_part(p, &(Particle){0.0f, b->r, s_cp, (Vector){0.0f, 0.0f}});
+    
+    Vector direction = vector_rotate(vector_sub(p_cp, b_cp), M_PI / 2.0f);
+    // draw_line(s_cp.x, s_cp.y, s_cp.x + direction.x, s_cp.y + direction.y);
+    ret_direction = &direction;
+
     return tc;
-
-    // TODO: Somehow return the rotation vector
-    
-    Vector direction = vector_rotate(vector_sub(s_cp, p_cp), M_PI / 2.0f);
-
 }
 
 void simulate_velocity(Particle* p, float dt) {
@@ -191,114 +209,122 @@ void evaluate(float delta_t) {
             int border_area_count = 0; 
             quad_tree_get_elements(border_tree, part_area, (void **)border_area_buf, &border_area_count);
 
-            // for (int j = 0; j < border_area_count; j++) {
-            //     Border* border = border_area_buf[j];
-                
-            //     float min_dist = (part_buf[i].r + border_area_buf[j]->r);
-            //     float tc1, tc2, tc;
+            // OLD STUFF
+                // for (int j = 0; j < border_area_count; j++) {
+                //     Border* border = border_area_buf[j];
+                    
+                //     float min_dist = (part_buf[i].r + border_area_buf[j]->r);
+                //     float tc1, tc2, tc;
 
-            //     int cc = COLL_CASE_NOR;
+                //     int cc = COLL_CASE_NOR;
 
-            //     if (border->s == INFINITY && part->vel.x) {
-            //         // (x(A)- x(P) +- (r_c + r_l)) / x(v)
-            //         tc1 = (border->pos1.x - part->pos.x + min_dist) / part->vel.x;
-            //         tc2 = (border->pos1.x - part->pos.x - min_dist) / part->vel.x;
+                //     if (border->s == INFINITY && part->vel.x) {
+                //         // (x(A)- x(P) +- (r_c + r_l)) / x(v)
+                //         tc1 = (border->pos1.x - part->pos.x + min_dist) / part->vel.x;
+                //         tc2 = (border->pos1.x - part->pos.x - min_dist) / part->vel.x;
 
-            //         // determine the nearest collision in the future
-            //         tc = (tc2 >= TOLERANCE && (tc2 < tc1 || tc1 <= TOLERANCE)) ? tc2 : tc1;
+                //         // determine the nearest collision in the future
+                //         tc = (tc2 >= TOLERANCE && (tc2 < tc1 || tc1 <= TOLERANCE)) ? tc2 : tc1;
 
-            //         // find out if the particle is going to miss the line segment
-            //         // this is why the positions of the borders have to be sorted
-            //         float dy = part->vel.y * tc;
-            //         cc = part->pos.y + dy < border->pos1.y? COLL_CASE_LOW : cc;
-            //         cc = part->pos.y + dy > border->pos2.y? COLL_CASE_HIG : cc;
-            //     } else if (border->s == INFINITY && !part->vel.x) {
-            //         // skip this check if there can't be a collision
-            //         if (part->pos.x + part->r < border->pos1.x - border->r || part->pos.x - part->r > border->pos1.x + border->r)
-            //             continue;
-            //         else {
-            //             tc1 = check_collision_part_part(part, &(Particle){0, border->r, border->pos1, (Vector){0.0, 0.0}});
-            //             tc2 = check_collision_part_part(part, &(Particle){0, border->r, border->pos2, (Vector){0.0, 0.0}});
+                //         // find out if the particle is going to miss the line segment
+                //         // this is why the positions of the borders have to be sorted
+                //         float dy = part->vel.y * tc;
+                //         cc = part->pos.y + dy < border->pos1.y? COLL_CASE_LOW : cc;
+                //         cc = part->pos.y + dy > border->pos2.y? COLL_CASE_HIG : cc;
+                //     } else if (border->s == INFINITY && !part->vel.x) {
+                //         // skip this check if there can't be a collision
+                //         if (part->pos.x + part->r < border->pos1.x - border->r || part->pos.x - part->r > border->pos1.x + border->r)
+                //             continue;
+                //         else {
+                //             tc1 = check_collision_part_part(part, &(Particle){0, border->r, border->pos1, (Vector){0.0, 0.0}});
+                //             tc2 = check_collision_part_part(part, &(Particle){0, border->r, border->pos2, (Vector){0.0, 0.0}});
 
-            //             // find out if the particle colides frontal with the line segment
-            //             tc = (tc2 >= TOLERANCE && (tc2 < tc1 || tc1 <= TOLERANCE)) ? tc2 : tc1;
+                //             // find out if the particle colides frontal with the line segment
+                //             tc = (tc2 >= TOLERANCE && (tc2 < tc1 || tc1 <= TOLERANCE)) ? tc2 : tc1;
 
-            //             if (tc > min_dt || tc < TOLERANCE)
-            //                 continue;
+                //             if (tc > min_dt || tc < TOLERANCE)
+                //                 continue;
 
-            //             cc = COLL_CASE_FRO;
-            //         }
-            //     } else {
-            //         // (+-(r_c + r_l) / sin(π / 2 - a) + m - y(P) + x(P) s) / (y(v) - x(v) s)
-            //         tc1 = ( min_dist / sin(M_PI / 2.0f - border->a) + border->b - part->pos.y + part->pos.x * border->s) / (part->vel.y - part->vel.x * border->s);
-            //         tc2 = (-min_dist / sin(M_PI / 2.0f - border->a) + border->b - part->pos.y + part->pos.x * border->s) / (part->vel.y - part->vel.x * border->s);
+                //             cc = COLL_CASE_FRO;
+                //         }
+                //     } else {
+                //         // (+-(r_c + r_l) / sin(π / 2 - a) + m - y(P) + x(P) s) / (y(v) - x(v) s)
+                //         tc1 = ( min_dist / sin(M_PI / 2.0f - border->a) + border->b - part->pos.y + part->pos.x * border->s) / (part->vel.y - part->vel.x * border->s);
+                //         tc2 = (-min_dist / sin(M_PI / 2.0f - border->a) + border->b - part->pos.y + part->pos.x * border->s) / (part->vel.y - part->vel.x * border->s);
 
-            //         // determine the nearest collision in the future
-            //         tc = (tc2 >= TOLERANCE && (tc2 < tc1 || tc1 <= TOLERANCE)) ? tc2 : tc1;
+                //         // determine the nearest collision in the future
+                //         tc = (tc2 >= TOLERANCE && (tc2 < tc1 || tc1 <= TOLERANCE)) ? tc2 : tc1;
 
-            //         // find out if the particle is going to miss the section
-            //         // dx = y(P) - a_s x(P) - m sin(a_w) sin(π / 2 - a_w)
-            //         float dx = (part->pos.y - part->pos.x * border->s - border->b) * sin(border->a) * sin(M_PI / 2.0f - border->a);
-            //         cc = part->pos.x + dx < border->pos1.x? COLL_CASE_LOW : cc;
-            //         cc = part->pos.x + dx > border->pos2.x? COLL_CASE_HIG : cc;
-            //     }
+                //         // find out if the particle is going to miss the section
+                //         // dx = y(P) - a_s x(P) - m sin(a_w) sin(π / 2 - a_w)
+                //         float dx = (part->pos.y - part->pos.x * border->s - border->b) * sin(border->a) * sin(M_PI / 2.0f - border->a);
+                //         cc = part->pos.x + dx < border->pos1.x? COLL_CASE_LOW : cc;
+                //         cc = part->pos.x + dx > border->pos2.x? COLL_CASE_HIG : cc;
+                //     }
 
-            //     switch(cc) {
-            //         // this is the default way of colliging with the line segment
-            //         case COLL_CASE_NOR: {
-            //             if (tc > min_dt || tc < TOLERANCE)
-            //                 continue;
+                //     switch(cc) {
+                //         // this is the default way of colliging with the line segment
+                //         case COLL_CASE_NOR: {
+                //             if (tc > min_dt || tc < TOLERANCE)
+                //                 continue;
 
-            //             Vector direction = vector_rotate(vector_sub((Vector){part->pos.x + part->vel.x * tc, part->pos.y + part->vel.y * tc}, border->pos1), M_PI / 2.0f);
-            //             co2 = &direction;
-            //             ct = COLLISION_COMP_ELAS;
-            //         } break;
+                //             Vector direction = vector_rotate(vector_sub((Vector){part->pos.x + part->vel.x * tc, part->pos.y + part->vel.y * tc}, border->pos1), M_PI / 2.0f);
+                //             co2 = &direction;
+                //             ct = COLLISION_COMP_ELAS;
+                //         } break;
 
-            //         // this is the way of colliging when the front segment is hit
-            //         case COLL_CASE_LOW: {
-            //             Particle bc = (Particle){0, border->r, border->pos1, (Vector){0.0f, 0.0f}};
-            //             tc = check_collision_part_part(part, &bc);
+                //         // this is the way of colliging when the front segment is hit
+                //         case COLL_CASE_LOW: {
+                //             Particle bc = (Particle){0, border->r, border->pos1, (Vector){0.0f, 0.0f}};
+                //             tc = check_collision_part_part(part, &bc);
 
-            //             if (tc > min_dt || tc < TOLERANCE)
-            //                 continue;
-                        
-            //             Vector direction = vector_rotate(vector_sub((Vector){part->pos.x + part->vel.x * tc, part->pos.y + part->vel.y * tc}, border->pos1), M_PI / 2.0f);
-            //             co2 = &direction;
-            //             ct = COLLISION_COMP_ELAS;
-            //         } break;
+                //             if (tc > min_dt || tc < TOLERANCE)
+                //                 continue;
+                            
+                //             Vector direction = vector_rotate(vector_sub((Vector){part->pos.x + part->vel.x * tc, part->pos.y + part->vel.y * tc}, border->pos1), M_PI / 2.0f);
+                //             co2 = &direction;
+                //             ct = COLLISION_COMP_ELAS;
+                //         } break;
 
-            //         // this is the way of colliging when the back segment is hit
-            //         case COLL_CASE_HIG: {
-            //             Particle bc = (Particle){0, border->r, border->pos2, (Vector){0.0f, 0.0f}};
-            //             tc = check_collision_part_part(part, &bc);
+                //         // this is the way of colliging when the back segment is hit
+                //         case COLL_CASE_HIG: {
+                //             Particle bc = (Particle){0, border->r, border->pos2, (Vector){0.0f, 0.0f}};
+                //             tc = check_collision_part_part(part, &bc);
 
-            //             if (tc > min_dt || tc < TOLERANCE)
-            //                 continue;
-                        
-            //             Vector direction = vector_rotate(vector_sub((Vector){part->pos.x + part->vel.x * tc, part->pos.y + part->vel.y * tc}, border->pos2), M_PI / 2.0);
-            //             co2 = &direction;
-            //             ct = COLLISION_COMP_ELAS;
-            //         } break;
+                //             if (tc > min_dt || tc < TOLERANCE)
+                //                 continue;
+                            
+                //             Vector direction = vector_rotate(vector_sub((Vector){part->pos.x + part->vel.x * tc, part->pos.y + part->vel.y * tc}, border->pos2), M_PI / 2.0);
+                //             co2 = &direction;
+                //             ct = COLLISION_COMP_ELAS;
+                //         } break;
 
-            //         // this is a special case where the velodity is paralel to the line
-            //         case COLL_CASE_FRO: {
-            //             Vector direction = vector_rotate(vector_sub((Vector){part->pos.x + part->vel.x * tc, part->pos.y + part->vel.y * tc}, border->pos1), M_PI / 2.0f);
-            //             co2 = &direction;
-            //             ct = COLLISION_COMP_ELAS;
-            //         } break;
+                //         // this is a special case where the velodity is paralel to the line
+                //         case COLL_CASE_FRO: {
+                //             Vector direction = vector_rotate(vector_sub((Vector){part->pos.x + part->vel.x * tc, part->pos.y + part->vel.y * tc}, border->pos1), M_PI / 2.0f);
+                //             co2 = &direction;
+                //             ct = COLLISION_COMP_ELAS;
+                //         } break;
 
-            //         default: continue;
-            //     }
+                //         default: continue;
+                //     }
 
-            //     min_dt = tc;
-            //     co1 = part;
-            // }
+                //     min_dt = tc;
+                //     co1 = part;
+                // }
+
+            Vector direction;
 
             for (int j = 0; j < border_area_count; j++) {
-                float tc = check_collision_part_bord(part, border_area_buf[j]);
+                float tc = check_collision_part_bord(part, border_area_buf[j], &direction);
 
                 if (tc < TOLERANCE || tc > min_dt)
                     continue;
+                
+                min_dt = tc;
+                co1 = part;
+                co2 = &direction;
+                ct = COLLISION_COMP_ELAS;
             }
 
             // check particle-particle collisions
@@ -308,7 +334,7 @@ void evaluate(float delta_t) {
             // find the next collision with another particle
             if (part_area_count > 1) {
                 for (int j = 0; j < part_area_count; j++) {
-                    float tc = check_collision_part_part(part, part_area_buf[j]);
+                    float tc = check_collision_part_part(part->pos, part->vel, part->r, part_area_buf[j]->pos, part_area_buf[j]->vel, part_area_buf[j]->r);
 
                     // DEBUG STUFF
                         // color(COLOR_DARK_CYAN);
@@ -324,7 +350,6 @@ void evaluate(float delta_t) {
                         continue;
 
                     min_dt = tc;
-
                     co1 = part;
                     co2 = part_area_buf[j];
                     ct = COLLISION_PART_PART;
@@ -363,7 +388,7 @@ void evaluate(float delta_t) {
 void on_create() {
     part_buf = malloc(sizeof(Particle) * PARTICLE_COUNT);
 
-    part_tree = quad_tree_create((Area){(Vector){0, 0}, (Vector){get_width(), get_height()}}, 0);
+    part_tree = quad_tree_create((Area){VECTOR_ZERO, (Vector){get_width(), get_height()}}, 0);
     part_area_buf = malloc(sizeof(Particle *) * PARTICLE_COUNT);
 
     part_buf[0] = (Particle){3.0, 4.0, (Vector){50, 20}, (Vector){0.0, 20.0}};
@@ -373,10 +398,10 @@ void on_create() {
     border_count = 2;
 
     border_buf = malloc(sizeof(Border) * border_count);
-    border_buf[0] = border_create((Vector){50, 50}, (Vector){50, 75}, 10.0);
+    border_buf[0] = border_create((Vector){20, 70}, (Vector){70, 75}, 10.0);
     border_buf[1] = border_create((Vector){20, 10}, (Vector){10, 80}, 5.0);
 
-    border_tree = quad_tree_create((Area){(Vector){0.0, 0.0}, (Vector){get_width(), get_height()}}, 0);
+    border_tree = quad_tree_create((Area){VECTOR_ZERO, (Vector){get_width(), get_height()}}, 0);
     border_area_buf = malloc(sizeof(Border *) * border_count);
 
     quad_tree_clear(border_tree);
@@ -388,6 +413,8 @@ void on_update() {
     clear();
     // evaluateParticles(delta_time);
     evaluate(0.001/*delta_time*/);
+
+    // printf("%f\n", straight_inv_lerp(border_buf[0].s, (Vector){mouse_x / 5.0, mouse_y / 5.0}, border_buf[0].pos1, border_buf[0].pos2));
     
     for (int i = 0; i < PARTICLE_COUNT; i++) {
         draw_circle(part_buf[i].pos.x, part_buf[i].pos.y, part_buf[i].r);
@@ -397,8 +424,8 @@ void on_update() {
     }
 
     for (int i = 0; i < border_count; i++) {
-        float dy = border_buf[i].r * sin(M_PI / 2.0 - border_buf[i].a);
-        float dx = border_buf[i].r * sin(border_buf[i].a);
+        float dy = border_buf[i].r * sin(M_PI / 2.0 - border_buf[i].s.alpha);
+        float dx = border_buf[i].r * sin(border_buf[i].s.alpha);
 
         draw_line(border_buf[i].pos1.x - dx, border_buf[i].pos1.y + dy, border_buf[i].pos2.x - dx, border_buf[i].pos2.y + dy);
         draw_line(border_buf[i].pos1.x + dx, border_buf[i].pos1.y - dy, border_buf[i].pos2.x + dx, border_buf[i].pos2.y - dy);

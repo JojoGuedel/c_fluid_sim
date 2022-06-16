@@ -6,7 +6,7 @@
 #include "Pixa/graphics.h"
 
 Border border_create(Vector p1, Vector p2, float thickness) {
-    Straight s = straight_create_p(p1, p2);
+    Straight s = straight_create_pp(p1, p2);
 
     // sort the positions so that the physics-engine doen't have to do unnecessary checks
     if (s.a == INFINITY) {

@@ -1,6 +1,8 @@
+#include <corecrt_math_defines.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "utils.h"
 
@@ -69,16 +71,17 @@ bool area_overlaps(Area a1, Area a2) {
 }
 
 // Straight
-Straight straight_create_v(Vector vec, float b) {
-    // slope of the straight
-    float a = vec.y / vec.x;
-    // angle to the x-axis
-    float alpha = atan2(vec.y, vec.x);
-
+Straight straight_create_ab(float a, float b) {
+    float alpha = atan(a);
     return (Straight){a, b, alpha};
 }
 
-Straight straight_create_p(Vector p1, Vector p2) {
+Straight straight_create_alphab(float alpha, float b) {
+    float a = tan(alpha);
+    return (Straight){a, b, alpha};
+}
+
+Straight straight_create_pp(Vector p1, Vector p2) {
     // slope of the straight
     float a = (p2.y - p1.y) / (p2.x - p1.x);
     // y-axis offset
@@ -89,29 +92,21 @@ Straight straight_create_p(Vector p1, Vector p2) {
     return (Straight){a, b, alpha};
 }
 
-float straight_f(Straight s, float x) {
+float straight_func(Straight s, float x) {
     return s.a * x + s.b;
 }
 
-Vector straight_lerp_v(Straight s, Vector p1, Vector p2, float val) {
-    float f1 = sqrt(p1.x * p1.x + (p1.y - s.b) * (p1.y - s.b));
-    float f2 = sqrt(p2.x * p2.x + (p2.y - s.b) * (p2.y - s.b));
-
-    return straight_lerp_f(s, f1, f2, val);
+Vector straight_lerp(Straight s, Vector p1, Vector p2, float lerp) {
+    return (Vector){lerp * (p2.x - p1.x) + p1.x, lerp * (p2.y - p1.y) + p1.y};
 }
 
-Vector straight_lerp_f(Straight s, float p1, float p2, float val) {
-    return vector_rotate((Vector){val * (p2 - p1) + p1, 0.0f}, s.alpha);
-}
+float straight_inv_lerp(Straight s, Vector p1, Vector p2, Vector vec) {
+    float y = straight_func(s, vec.x) - vec.y;
+    if(y < -10 || y > 10)
+        printf("not on the straight\n");
 
-float straight_inv_lerp(Straight s, Vector vec, Vector p1, Vector p2) {
-    float val = sqrt(vec.x * vec.x + (vec.y - s.b) * (vec.y - s.b));
-    float f1 = sqrt(p1.x * p1.x + (p1.y - s.b) * (p1.y - s.b));
-    float f2 = sqrt(p2.x * p2.x + (p2.y - s.b) * (p2.y - s.b));
-
-    return inv_lerp(val, f1, f2);
-}
-
-float inv_lerp(float val, float p1, float p2) {
-    return (val - p1) / (p2 - p1);
+    if (fmod(s.alpha, M_PI / 2.0f) > M_PI / 4.0f && fmod(s.alpha, M_PI_2 / 2.0f) < M_PI / 3.0f)
+        return (vec.y - p1.y) / (p2.y - p1.y);
+    else
+        return (vec.x - p1.x) / (p2.x - p1.x);
 }

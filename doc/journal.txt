@@ -103,3 +103,15 @@ Zudem möchte ich ein paar vorgefertigte Szenen machen, die die Form eines flüg
 Ich bin gespannt ob turbulente Luft sichtbar sein wird oder ob die ganze Arbeit für nichts war.
 
 Programmier Zeit: 6h
+
++-------------------------------------------- 15.06.2022 --------------------------------------------+
+
+Ich habe heute versucht, die Spezialfällte zu lösen.
+Jedoch habe ich einem halben Tag Arbeit alles über den Haufen geworfen und versuche jetzt einen neuen Ansatz.
+Beim alten wollte ich alles mit einer Fallunterscheidung machne.
+Das wurde aber viel zu kompliziert.
+Desshalb möchte ich jetzt versuche, alle Kollisionen mit einer Border gleich zu behandeln.
+So wird der Code viel besser lesbar und einfacher.
+
+Ich habe jetzt schon begonnen den Code teilweise etwas umzurschreiben.
+Somite sollte das Coden im algemeinen angenehmer und einfacher werden.

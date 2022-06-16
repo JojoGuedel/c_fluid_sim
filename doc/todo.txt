@@ -7,13 +7,14 @@ o- implement basic particles
 
 o- solve particle-border-collsision
 o- implement interactive objects
+x- handle specialcases (vertical border)
+o- fix border drawing
 
 #============================================#
 #                 working on                 #
 #============================================#
 
-o- handle specialcases (vertical border)
-o- fix border drawing
+o- rewrite border collision code and treat everything the same way
 
 #============================================#
 #                 milestones                 #
